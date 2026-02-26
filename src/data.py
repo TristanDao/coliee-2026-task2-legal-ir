@@ -21,21 +21,24 @@ class Task2Dataset:
             if case_dir.is_dir():
                 case_id = case_dir.name
                 base_case = (case_dir / "base_case.txt").read_text(encoding = "utf-8")
-
+                entailed_fragment = (case_dir / "entailed_fragment.txt").read_text(encoding = "utf-8")
                 para_dir = case_dir / "paragraphs"
+                paragraphs = []
                 for para_file in para_dir.iterdir():
                     para_id = para_file.name
                     paragraph = para_file.read_text(encoding = "utf-8")
-                label = 0
-                if case_id in self.labels:
-                    label = 1 if para_id in self.labels[case_id] else 0      
-                    
+                    if case_id in self.labels:
+                        label = 1 if para_id in self.labels[case_id] else 0
+                    paragraphs.append({
+                        "para_id": para_id,
+                        "paragraph": paragraph,
+                        "label": label
+                    })      
                 samples.append({
                     "case_id": case_id,
-                    "query": base_case,
-                    "para_id": para_id,
-                    "paragraph": paragraph,
-                    "label": label
+                    "entailed_fragment": entailed_fragment,
+                    "base_case": base_case[:100],
+                    "paragraphs": paragraphs
                 })
         return samples
 
@@ -44,6 +47,16 @@ class Task2Dataset:
     
     def __getitem__(self, idx):
         return self.samples[idx]
+
+# def main():
+#     dataset = Task2Dataset(
+#         data_dir = "Data/task2_train_files_2025",
+#         label_path = "Data/task2_train_labels_2025.json"
+#     )
+#     for p in dataset[0]['paragraphs']:
+#         print(p['para_id'], p['label'])
+# if __name__ == "__main__":
+#     main()
     
 
                 
